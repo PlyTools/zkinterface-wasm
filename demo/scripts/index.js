@@ -11,13 +11,12 @@ let code = `
         field xx = x * x
         field yy = y * y
         return xx + yy - 1
-
     `;
-    
-document.getElementById("program").innerText = code.trim();
-document.getElementById("generateConstraintsBtn").addEventListener("click", generateConstraints); 
 
-function generateConstraints (e){
+document.getElementById("program").innerText = code;
+document.getElementById("generateConstraintsBtn").addEventListener("click", generateConstraints);
+
+function generateConstraints(e) {
     console.log("generateConstraints invoked");
 
     disableBtn(e);
@@ -28,14 +27,14 @@ function generateConstraints (e){
     // Compile the code to ZkInterface constraints with the ZoKrates module.
     constraints = zkif_zokrates.make_constraint_system(programCode);
     console.log("generated constraints, constraints: " + constraints);
-    document.getElementById("cs").innerText = zkif_zokrates.pretty(constraints).trim();
+    document.getElementById("cs").innerText = zkif_zokrates.pretty(constraints);
 
     console.log("generateConstraints finished");
 }
 
-document.getElementById("computeWitnessBtn").addEventListener("click", computeWitness); 
+document.getElementById("computeWitnessBtn").addEventListener("click", computeWitness);
 
-function computeWitness(e){
+function computeWitness(e) {
     console.log("computeWitness invoked");
     // Prover's View.
 
@@ -46,8 +45,8 @@ function computeWitness(e){
     console.log("y: " + y);
 
     // Compute the ZkInterface witness with the ZoKrates module.
-    let res  = zkif_zokrates.make_witness(code, x, y);
-    
+    let res = zkif_zokrates.make_witness(code, x, y);
+
     prover_msg = res.prover_msg;
     verifier_msg = res.verifier_msg;
 
@@ -63,9 +62,9 @@ function computeWitness(e){
     console.log("computeWitness finished");
 }
 
-document.getElementById("createProofBtn").addEventListener("click", createProof); 
+document.getElementById("createProofBtn").addEventListener("click", createProof);
 
-function createProof(e){
+function createProof(e) {
     console.log("createProof invoked");
     console.log("input parameter constraints value: " + constraints);
     console.log("input parameter prover_msg value: " + prover_msg);
@@ -74,7 +73,7 @@ function createProof(e){
         window.alert("constraints are empty, please generate constraints first.");
         return;
     }
-    
+
     if (!prover_msg) {
         window.alert("witness is empty, please compute witness first.");
         return;
@@ -86,19 +85,19 @@ function createProof(e){
     proof = zkif_bulletproofs.prove(constraints, prover_msg);
     console.log("output parameter proof value: " + proof);
 
-    var proofHex =  toHexString(proof);
+    var proofHex = toHexString(proof);
     var proofHexSubset = proofHex.substring(0, 20);
 
     var verifierEle = document.getElementById("verifier");
     verifierEle.innerText = "Prover:\n";
-    verifierEle.insertAdjacentText("beforeend","Proof created, proof-content=" +  proofHexSubset +"... (" + proof.length + " bytes)\n");
+    verifierEle.insertAdjacentText("beforeend", "Proof created, proof-content=" + proofHexSubset + "... (" + proof.length + " bytes)\n");
 
     console.log("createProof finished");
 }
 
-document.getElementById("verifyProofBtn").addEventListener("click", verifyProof); 
+document.getElementById("verifyProofBtn").addEventListener("click", verifyProof);
 
-function verifyProof(e){
+function verifyProof(e) {
     console.log("computeWitness invoked");
     console.log("input parameter, verifier_msg: " + verifier_msg);
     console.log("input parameter, proof: " + proof);
@@ -122,9 +121,9 @@ function verifyProof(e){
     disableBtn(e);
 
     // Prover sends verifier_msg and proof to the verifier.
-    document.getElementById("verifier").insertAdjacentText("beforeend","\nVerify: \
+    document.getElementById("verifier").insertAdjacentText("beforeend", "\nVerify: \
     " + zkif_zokrates.pretty(verifier_msg) + "\n\
-    Verifying proof (" +proof.length + " bytes)");
+    Verifying proof (" + proof.length + " bytes)");
 
     // Verify the proof using the Bulletproofs module and the messages.
     let verif = zkif_bulletproofs.verify(constraints, verifier_msg, proof);
@@ -147,12 +146,12 @@ function verifyProof(e){
 }
 
 function toHexString(byteArray) {
-    return Array.from(byteArray, function(byte) {
-      return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    return Array.from(byteArray, function (byte) {
+        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
     }).join('')
-  }
+}
 
-  function disableBtn(clickEvent) {
+function disableBtn(clickEvent) {
     var ele = clickEvent.target || clickEvent.srcElement;
     ele.setAttribute("disabled", "disabled");
     ele.classList.add("disabled");
